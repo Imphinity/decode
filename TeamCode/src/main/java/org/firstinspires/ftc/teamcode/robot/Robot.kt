@@ -26,75 +26,29 @@ class Robot(
     resetEncoders: Boolean = true
 ) {
     val drive: Drive
+    val canon: Canon
 
     init {
         val mecanumDrive = MecanumDrive(hardwareMap, pose.pose2d)
 
-        if (resetEncoders) {
-            val liftEncoder = mecanumDrive.leftFront
-            liftEncoder.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
-            liftEncoder.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
-            val intakeExtendoEncoder = mecanumDrive.leftBack
-            intakeExtendoEncoder.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
-            intakeExtendoEncoder.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
-        }
 
-        val liftEncoder = RawEncoder(mecanumDrive.leftFront)
-        val intakeExtendoEncoder = RawEncoder(mecanumDrive.leftBack)
+        val motorUp = hardwareMap.get(DcMotorEx::class.java, "motorUp")
+        val motorDown = hardwareMap.get(DcMotorEx::class.java, "motorDown")
 
-        liftEncoder.direction = DcMotorSimple.Direction.FORWARD
-        intakeExtendoEncoder.direction = DcMotorSimple.Direction.FORWARD
+        motorUp.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
+        motorDown.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
 
-        val liftLeftMotor = hardwareMap.get(DcMotorEx::class.java, "leftLift")
-        val liftRightMotor = hardwareMap.get(DcMotorEx::class.java, "rightLift")
-        val intakeExtendoMotor = hardwareMap.get(DcMotorEx::class.java, "extendo")
-        val intakeSweeperMotor = hardwareMap.get(DcMotorEx::class.java, "intake")
+        motorUp.direction = DcMotorSimple.Direction.REVERSE
+        motorDown.direction = DcMotorSimple.Direction.FORWARD
 
-        liftLeftMotor.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
-        liftRightMotor.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
-        intakeExtendoMotor.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
-        intakeSweeperMotor.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
+        motorUp.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
+        motorDown.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
 
-        liftLeftMotor.direction = DcMotorSimple.Direction.REVERSE
-        liftRightMotor.direction = DcMotorSimple.Direction.FORWARD
-
-        intakeExtendoMotor.direction = DcMotorSimple.Direction.REVERSE
-        intakeSweeperMotor.direction = DcMotorSimple.Direction.REVERSE
-
-        liftLeftMotor.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
-        liftRightMotor.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
-        intakeExtendoMotor.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
-        intakeSweeperMotor.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
-
-
-        val intakeTiltServo = hardwareMap.get(Servo::class.java, "intakeTilt")
-        val intakeBoxServo = hardwareMap.get(Servo::class.java, "box")
-        val outtakeShoulderLeftServo = hardwareMap.get(Servo::class.java, "leftArm")
-        val outtakeShoulderRightServo = hardwareMap.get(Servo::class.java, "rightArm")
-        val outtakeElbowServo = hardwareMap.get(Servo::class.java, "elbow")
-        val outtakeWristServo = hardwareMap.get(Servo::class.java, "wrist")
-        val outtakeClawServo = hardwareMap.get(Servo::class.java, "claw")
-
-        intakeTiltServo.direction = Servo.Direction.FORWARD
-        intakeBoxServo.direction = Servo.Direction.FORWARD
-        outtakeShoulderLeftServo.direction = Servo.Direction.REVERSE
-        outtakeShoulderRightServo.direction = Servo.Direction.FORWARD
-        outtakeElbowServo.direction = Servo.Direction.FORWARD
-        outtakeWristServo.direction = Servo.Direction.FORWARD
-        outtakeClawServo.direction = Servo.Direction.REVERSE
-
-        val offsetShoulder = 0.015
-
-        intakeTiltServo.scaleRange(0.0, 1.0)
-        intakeBoxServo.scaleRange(0.0, 1.0)
-        outtakeShoulderLeftServo.scaleRange(0.0, 1.0 - offsetShoulder)
-        outtakeShoulderRightServo.scaleRange(0.0, 1.0 - offsetShoulder)
-        outtakeElbowServo.scaleRange(0.0, 1.0)
-        outtakeWristServo.scaleRange(0.0, 1.0)
-        outtakeClawServo.scaleRange(0.298, 0.437)
-
-        val intakeColorSensor = hardwareMap.get(NormalizedColorSensor::class.java, "intakeColorSensor")
 
         drive = Drive(mecanumDrive)
+        canon = Canon(
+            motorUp = motorUp,
+            motorDown = motorDown
+        )
     }
 }
