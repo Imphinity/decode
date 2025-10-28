@@ -3,7 +3,10 @@ package org.firstinspires.ftc.teamcode.robot
 import com.acmerobotics.dashboard.config.Config
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket
 import com.acmerobotics.roadrunner.Action
+import com.acmerobotics.roadrunner.InstantAction
+import com.acmerobotics.roadrunner.ParallelAction
 import com.acmerobotics.roadrunner.RaceAction
+import com.acmerobotics.roadrunner.SequentialAction
 import com.acmerobotics.roadrunner.ftc.Encoder
 import com.commonlibs.units.Duration
 import com.commonlibs.units.SleepAction
@@ -33,6 +36,22 @@ class Canon(
             motorDown.power= value
             currentMode = Mode.RAW_POWER
         }
+
+
+
+    var scoreActon = RaceAction(
+        SequentialAction(
+            ParallelAction(
+                InstantAction { motorUp.power = -1.0 },
+                InstantAction { motorDown.power = -1.0 }
+            ),
+            SleepAction(4.0.s),
+            ParallelAction(
+            InstantAction { motorUp.power = 0.0 },
+                InstantAction { motorDown.power = 0.0 }
+            )
+        )
+    )
 
     fun addTelemetry(telemetry: Telemetry) {
         telemetry.addData("sistem power", power)

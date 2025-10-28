@@ -38,7 +38,7 @@ class Robot(
         motorUp.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
         motorDown.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
 
-        motorUp.direction = DcMotorSimple.Direction.REVERSE
+        motorUp.direction = DcMotorSimple.Direction.FORWARD
         motorDown.direction = DcMotorSimple.Direction.FORWARD
 
         motorUp.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
