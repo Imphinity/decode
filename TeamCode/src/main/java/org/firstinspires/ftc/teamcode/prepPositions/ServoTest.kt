@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.teleop.prepPositions
 
+import com.acmerobotics.dashboard.config.Config
 import com.acmerobotics.roadrunner.now
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
@@ -8,9 +9,14 @@ import com.qualcomm.robotcore.hardware.Servo
 @TeleOp
 class ServoTest: LinearOpMode() {
 
+    @Config
+    data object servoConfig {
+        @JvmField
+        var servoPos = 0.0
+    }
     override fun runOpMode() {
 
-        val servo = hardwareMap.get(Servo::class.java, "servoIntakeTilt")
+        val servo = hardwareMap.get(Servo::class.java, "servo")
 
         var previousTime: Double
         var deltaTime : Double
@@ -27,12 +33,7 @@ class ServoTest: LinearOpMode() {
             deltaTime = now - previousTime
             previousTime = now
 
-            if(gamepad1.a) {
-                servo.position += 0.1 * deltaTime
-            }
-            else if(gamepad1.y) {
-                servo.position -= 0.1 * deltaTime
-            }
+            servo.position= servoConfig.servoPos
 
 
 

@@ -9,14 +9,16 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.DcMotorEx
 import com.qualcomm.robotcore.hardware.DcMotorSimple
+import com.qualcomm.robotcore.hardware.Servo
 
 @TeleOp
-class MotorTest : LinearOpMode() {
+class SystemTest : LinearOpMode() {
 
     @Config
-    data object motorConfig {
+    data object systemConfig {
         @JvmField var motorPower1 = 0.0
         @JvmField var motorPower2 = 0.0
+        @JvmField var servoPos = 0.5
 
         // how often to compute and reset in seconds
         @JvmField var sampleWindow = 0.1
@@ -26,6 +28,7 @@ class MotorTest : LinearOpMode() {
         val motor = hardwareMap.get(DcMotorEx::class.java, "motor")
         val motor2 = hardwareMap.get(DcMotorEx::class.java, "motor2")
         val encoder = hardwareMap.get(DcMotor::class.java, "encoder")
+        val servo = hardwareMap.get(Servo::class.java, "servo")
 
         telemetry = MultipleTelemetry(telemetry, FtcDashboard.getInstance().telemetry)
 
@@ -53,11 +56,13 @@ class MotorTest : LinearOpMode() {
             val currentTime = now()
             val deltaTime = currentTime - lastTime
 
-            motor.power = motorConfig.motorPower1
-            motor2.power = motorConfig.motorPower2
+            motor.power = systemConfig.motorPower1
+            motor2.power = systemConfig.motorPower2
+
+            servo.position = systemConfig.servoPos
 
             // calculate rpm only every sampleWindow seconds
-            if (currentTime - lastResetTime >= motorConfig.sampleWindow) {
+            if (currentTime - lastResetTime >= systemConfig.sampleWindow) {
                 val pos = encoder.currentPosition
                 val elapsed = currentTime - lastResetTime
 
@@ -78,7 +83,7 @@ class MotorTest : LinearOpMode() {
             telemetry.addData("last reset time", lastResetTime)
             telemetry.addData("current time", currentTime)
             telemetry.addData("ΔTime Loop (s)", "%.4f".format(deltaTime))
-            telemetry.addData("Sample Window (s)", "%.3f".format(motorConfig.sampleWindow))
+            telemetry.addData("Sample Window (s)", "%.3f".format(systemConfig.sampleWindow))
             telemetry.addData("RPM", "%.2f".format(rpm))
             telemetry.update()
 
