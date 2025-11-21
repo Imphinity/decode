@@ -12,10 +12,11 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple
 import org.firstinspires.ftc.teamcode.library.TimeKeep
 import org.firstinspires.ftc.teamcode.library.controller.PIDController
 import org.firstinspires.ftc.teamcode.library.controller.LowPassFilter
+import org.firstinspires.ftc.teamcode.teleop.prepPositions.OuttakeTest.outtakeConfig
 import kotlin.math.abs
 import kotlin.math.sign
 
-@TeleOp(name = "Motor RPM PID Limiter", group = "Test")
+@TeleOp
 class MotorTest : LinearOpMode() {
 
     @Config
@@ -52,16 +53,15 @@ class MotorTest : LinearOpMode() {
         telemetry = MultipleTelemetry(telemetry, FtcDashboard.getInstance().telemetry)
 
         motor.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
-        motor.direction = DcMotorSimple.Direction.REVERSE
-        motor.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
+        motor.direction = DcMotorSimple.Direction.FORWARD
+        motor.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.FLOAT
 
         motor2.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
         motor2.direction = DcMotorSimple.Direction.REVERSE
-        motor2.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
+        motor2.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.FLOAT
 
         encoder.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
         encoder.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
-
 
         var lastTime = now()
         var lastResetTime = now()
@@ -75,44 +75,24 @@ class MotorTest : LinearOpMode() {
             val currentTime = now()
             val dt = currentTime - lastTime
 
-            if (currentTime - lastResetTime >= motorConfig.sampleWindow) {
+            if (currentTime - lastResetTime >= outtakeConfig.sampleWindow) {
                 val pos = encoder.currentPosition
                 val elapsed = currentTime - lastResetTime
-                val revs = pos / motorConfig.TICKS_PER_REV
+                val revs = pos / outtakeConfig.TICKS_PER_REV
                 rpm = (revs / elapsed) * 60.0
 
-                // reset encoder window
                 encoder.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
                 encoder.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
                 lastResetTime = currentTime
             }
-            if (motorConfig.basePower1 < 1.0) {
-                motor.power = motorConfig.basePower1
-            }
-            else {
-                motor.power = motorConfig.controller.calculate(
-                    rpm,
-                    motorConfig.targetRPM,
-                    timeKeep.deltaTime
-                )
-            }
-            if (motorConfig.basePower2 < 1.0) {
-                motor2.power = motorConfig.basePower2
-            }
-            else {
-                motor2.power = motorConfig.controller.calculate(
-                    rpm,
-                    motorConfig.targetRPM,
-                    timeKeep.deltaTime
-                )
-            }
 
-            telemetry.addData("RPM", "%.2f", rpm)
+            motor.power= motorConfig.basePower1
+            motor2.power= motorConfig.basePower1
+
             telemetry.addData("Motor1 Power", motor.power)
             telemetry.addData("Motor2 Power", motor2.power)
+            telemetry.addData("rpm", rpm)
             telemetry.update()
-
-            lastTime = currentTime
         }
     }
 }
