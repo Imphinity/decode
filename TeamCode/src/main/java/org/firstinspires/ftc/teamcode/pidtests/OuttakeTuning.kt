@@ -25,11 +25,13 @@ class OuttakeTuning : LinearOpMode() {
     data object OuttakeTuningConfig {
         @JvmField
         var controller = PIDController(
-            kP = 0.001995,
-            kD = 0.0000001,
-            kI = 0.0000001,
-            stabilityThreshold = 0.2
+            kP = 0.0004,
+            kD = 0.00002,
+            kI = 0.000005,
+            stabilityThreshold = 50.0
         )
+        @JvmField
+        var kV = 0.00025
         @JvmField
         var targetRpm = 0.0
     }
@@ -54,6 +56,8 @@ class OuttakeTuning : LinearOpMode() {
         var lastTime = now()
         var lastResetTime = now()
         val timeKeep = TimeKeep()
+        var ff = 0.0
+        var pid = 0.0
         var rpm = 0.0
         var targetRpm = 0.0
         var shooterPower = 0.0
@@ -79,8 +83,10 @@ class OuttakeTuning : LinearOpMode() {
 
             targetRpm = OuttakeTuningConfig.targetRpm
 
-            shooterPower = OuttakeTuningConfig.controller.calculate(abs(rpm),abs(targetRpm),timeKeep.deltaTime)
-            /// how to target toleramce???
+            ff = OuttakeTuningConfig.kV * targetRpm
+            pid = OuttakeTuningConfig.controller .calculate(rpm, targetRpm, timeKeep.deltaTime)
+            shooterPower = (ff + pid).coerceIn(-1.0, 1.0)
+
             motorShooterBottom.power = shooterPower
             motorShooterTop.power = shooterPower
 

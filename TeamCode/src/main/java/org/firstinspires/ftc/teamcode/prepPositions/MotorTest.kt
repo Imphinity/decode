@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.teleop.prepPositions
 import com.acmerobotics.dashboard.FtcDashboard
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry
 import com.acmerobotics.dashboard.config.Config
+import com.acmerobotics.roadrunner.ftc.RawEncoder
 import com.acmerobotics.roadrunner.now
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
@@ -11,10 +12,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx
 import com.qualcomm.robotcore.hardware.DcMotorSimple
 import org.firstinspires.ftc.teamcode.library.TimeKeep
 import org.firstinspires.ftc.teamcode.library.controller.PIDController
-import org.firstinspires.ftc.teamcode.library.controller.LowPassFilter
 import org.firstinspires.ftc.teamcode.teleop.prepPositions.OuttakeTest.outtakeConfig
-import kotlin.math.abs
-import kotlin.math.sign
 
 @TeleOp
 class MotorTest : LinearOpMode() {
@@ -46,22 +44,19 @@ class MotorTest : LinearOpMode() {
     }
 
     override fun runOpMode() {
-        val motor = hardwareMap.get(DcMotorEx::class.java, "motor")
-        val motor2 = hardwareMap.get(DcMotorEx::class.java, "motor2")
-        val encoder = hardwareMap.get(DcMotor::class.java, "encoder")
+        val motorShooterTop = hardwareMap.get(DcMotorEx::class.java, "motorShooterTop")
+        val motorShooterBottom = hardwareMap.get(DcMotorEx::class.java, "motorShooterBottom")
+
+        motorShooterTop.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
+        motorShooterTop.direction = DcMotorSimple.Direction.REVERSE
+        motorShooterTop.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.FLOAT
+
+        motorShooterBottom.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
+        motorShooterBottom.direction = DcMotorSimple.Direction.FORWARD
+        motorShooterBottom.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.FLOAT
+        val shooterEncoder = RawEncoder(motorShooterBottom)
 
         telemetry = MultipleTelemetry(telemetry, FtcDashboard.getInstance().telemetry)
-
-        motor.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
-        motor.direction = DcMotorSimple.Direction.FORWARD
-        motor.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.FLOAT
-
-        motor2.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
-        motor2.direction = DcMotorSimple.Direction.REVERSE
-        motor2.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.FLOAT
-
-        encoder.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
-        encoder.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
 
         var lastTime = now()
         var lastResetTime = now()
@@ -76,21 +71,21 @@ class MotorTest : LinearOpMode() {
             val dt = currentTime - lastTime
 
             if (currentTime - lastResetTime >= outtakeConfig.sampleWindow) {
-                val pos = encoder.currentPosition
+                val pos = motorShooterBottom.currentPosition
                 val elapsed = currentTime - lastResetTime
                 val revs = pos / outtakeConfig.TICKS_PER_REV
                 rpm = (revs / elapsed) * 60.0
 
-                encoder.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
-                encoder.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
+                motorShooterBottom.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
+                motorShooterBottom.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
                 lastResetTime = currentTime
             }
 
-            motor.power= motorConfig.basePower1
-            motor2.power= motorConfig.basePower1
+            motorShooterTop.power= motorConfig.basePower1
+            motorShooterBottom.power= motorConfig.basePower1
 
-            telemetry.addData("Motor1 Power", motor.power)
-            telemetry.addData("Motor2 Power", motor2.power)
+            telemetry.addData("Motor1 Power", motorShooterTop.power)
+            telemetry.addData("Motor2 Power", motorShooterBottom.power)
             telemetry.addData("rpm", rpm)
             telemetry.update()
         }
