@@ -60,7 +60,7 @@ class MotorTest : LinearOpMode() {
 
         var lastTime = now()
         var lastResetTime = now()
-        var rpm = 0.0
+        var rpm = 0.0//test
         val timeKeep = TimeKeep()
 
         waitForStart()
