@@ -26,9 +26,9 @@ class TransferTuning : LinearOpMode() {
     data object TransferTuningConfig {
         @JvmField
         var controller = PIDController(
-            kP = 0.00001,
-            kD = 0.00001,
-            kI = 0.00001,
+            kP = 0.0015,
+            kD = 0.000001,
+            kI = 0.0045,
             stabilityThreshold = 50.0
         )
         @JvmField
